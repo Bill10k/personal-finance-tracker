@@ -51,9 +51,10 @@ http://localhost:8000/api/v1
 | DELETE | `/budgets/{id}` | Delete budget                | ✅            |
 
 ### 🔁 Transfer Routes (Optional)
-| Method | Route               | Description                 | Auth Required |
-|--------|---------------------|-----------------------------|---------------|
-| POST   | `/transfers/`       | Transfer between accounts   | ✅            |
+| Method | Route               | Description                       | Auth Required |
+|--------|---------------------|-----------------------------------|---------------|
+| GET    | `/transfers/`       | List transfers between accounts   | ✅            |
+| POST   | `/transfers/`       | Transfer between accounts         | ✅            |
 
 ---
 
