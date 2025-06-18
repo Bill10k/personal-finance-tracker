@@ -24,8 +24,8 @@ Built with real-world usability in mind, this software is being developed by a t
 
 | Layer         | Tech                          |
 |---------------|-------------------------------|
-| Frontend      | HTML, CSS, JavaScript (Flutter) |
-| Backend       | Python (Flask / Django)       |
+| Frontend      | React                         |
+| Backend       | Python (FastAPI)              |
 | Database      | SQLite / PostgreSQL           |
 | Versioning    | Git + GitHub                  |
 | Others        | Chart.js / D3.js (for graphs) |
@@ -34,8 +34,8 @@ Built with real-world usability in mind, this software is being developed by a t
 
 personal-finance-tracker/
 │
-├── backend/ # Flask/Django code
-├── frontend/ # FLutter or plain HTML/CSS/JS
+├── backend/ # FastAPI code
+├── frontend/ # React
 ├── docs/ # Planning and design documents
 │ ├── requirements.md
 │ └── architecture.md
