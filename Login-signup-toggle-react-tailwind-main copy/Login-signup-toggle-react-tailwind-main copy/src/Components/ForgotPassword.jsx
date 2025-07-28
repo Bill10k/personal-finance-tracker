@@ -4,7 +4,7 @@ function ForgotPassword({ onBack }) {
   return (
     <div
       className="grid w-full h-screen place-items-center bg-cover bg-center"
-      style={{ backgroundImage: "url('/src/assets/background.png')" }}
+      style={{ backgroundImage: "url('/assets/background.png')" }}
     >
       <div className="w-[430px] bg-white p-8 rounded-2xl shadow-lg">
         {/* Header */}

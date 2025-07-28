@@ -11,7 +11,7 @@ const BudgetItem = ({ category, spent, limit }) => {
             style={{ width: `${percent}%` }}
           ></div>
         </div>
-        <p className="text-xs text-gray-500">{spent} / {limit} — {percent}% used</p>
+        <p className="text-xs text-gray-500">₵{spent} / ₵{limit} — {percent}% used</p>
       </div>
     )
   }

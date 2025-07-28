@@ -10,7 +10,7 @@ const Chart = ({ data }) => {
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: item.color }}
               ></span>
-              {item.name}: ${item.value}
+              {item.name}: ₵{item.value}
             </li>
           ))}
         </ul>
