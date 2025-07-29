@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from datetime import datetime
 from app.schemas.auth import UserCreate  # Use consistent import
-from app.database import users_db  # In-memory mock DB
+from app.core.database import users_db  # In-memory mock DB
 from app.schemas.auth import UserLogin  # Adjust import if needed
 
 class AuthService:

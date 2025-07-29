@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import Column, String, Integer
-from app.database import Base
+from app.core.database import Base
 
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)

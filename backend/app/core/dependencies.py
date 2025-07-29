@@ -1,6 +1,6 @@
 # app/core/dependencies.py
 
-from app.database import SessionLocal
+from app.core.database import SessionLocal
 from sqlalchemy.orm import Session
 from typing import Generator
 

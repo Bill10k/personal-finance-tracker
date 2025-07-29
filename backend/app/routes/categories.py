@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from app.database import categories_db  # your in-memory categories dictionary
+from app.core.database import categories_db  # your in-memory categories dictionary
 
 
 router = APIRouter()

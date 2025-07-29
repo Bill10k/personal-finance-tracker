@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.routes import auth, accounts, budgets, categories, transactions, dashboard, transfers
-from app.database import Base, engine
+from app.core.database import Base, engine
 from app.models import user, account, transaction, budget, category  # import all  # also import other model modules
 
 Base.metadata.create_all(bind=engine)

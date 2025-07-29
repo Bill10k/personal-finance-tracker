@@ -1,7 +1,7 @@
 # backend/app/models/budget.py
 
 from sqlalchemy import Column, Integer, Float, String, ForeignKey
-from app.database import Base
+from app.core.database import Base
 
 class Budget(Base):
     __tablename__ = "budgets"

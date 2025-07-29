@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.schemas.transaction_schema import TransferCreate, TransactionResponse
-from app.database import transactions_db
+from app.core.database import transactions_db
 from app.models.account import Account
 from app.core.dependencies import get_db
 from datetime import datetime

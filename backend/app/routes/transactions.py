@@ -5,7 +5,8 @@ from app.models.transaction import Transaction
 from app.core.dependencies import get_db
 from datetime import datetime
 
-router = APIRouter()
+router = APIRouter(prefix="/transactions")
+
 
 @router.post("/", response_model=TransactionResponse)
 def create_transaction(data: TransactionCreate, db: Session = Depends(get_db)):

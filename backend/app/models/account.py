@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from enum import Enum
 from sqlalchemy import Column, Integer, String, ForeignKey
-from app.database import Base
+from app.core.database import Base
 
 class AccountType(str, Enum):
     CHECKING = "checking"

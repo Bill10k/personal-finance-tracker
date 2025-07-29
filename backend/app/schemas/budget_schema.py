@@ -1,18 +1,21 @@
 from pydantic import BaseModel
-from typing import Literal
+from typing import Optional
 
 class BudgetCreate(BaseModel):
-    user_id: int
-    category_id: str
-    amount: float
-    period: Literal["weekly", "monthly", "yearly"]
+    name: str
+    budget: float
+    spent: Optional[float] = 0
+
+class BudgetUpdate(BaseModel):
+    name: Optional[str] = None
+    budget: Optional[float] = None
+    spent: Optional[float] = None
 
 class BudgetResponse(BaseModel):
     id: int
-    user_id: int
-    category_id: str
-    amount: float
-    period: str
+    name: str
+    budget: float
+    spent: float
 
     class Config:
-        from_attributes = True
+        orm_mode = True
