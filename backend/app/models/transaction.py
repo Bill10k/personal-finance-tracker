@@ -8,7 +8,7 @@ class Transaction(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     account_id = Column(Integer, ForeignKey("accounts.id"))
-    amount = Column(Float)
+    amount = Column(Numeric(12,2), nullable = False)
     type = Column(String)  # income or expense
     category = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
