@@ -21,7 +21,10 @@ class AccountCreate(BaseModel):
 class Account(Base):
     __tablename__ = "accounts"
 
-    id = Column(Integer, primary_key=True, index=True)
+    account_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    name = Column(String, index=True)
-    type = Column(String)  # e.g., savings, checking
+    amount = Column(Numeric(12,2), Nullable = False)
+    account_name = Column(String, index=True)
+    account_type = Column(String)  # e.g., savings, checking
+    created_at = Column(DateTime(timezone=True), server_default = func.now())
+    description = Column(TEXT)
