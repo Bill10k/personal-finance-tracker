@@ -6,10 +6,10 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
+    cat_id = Column(Integer, ForeignKey("category.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
     account_id = Column(Integer, ForeignKey("accounts.id"))
     amount = Column(Numeric(10,2), nullable = False)
-    type = Column(String)  # income or expense
-    category = Column(String)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-    note = Column(String, nullable=True)
+    type = Column(String, nullable = False) # income or expense
+    timestamp = Column(DateTime(timezone=True), server_default = func.now())
+    description = Column(String, nullable=True)
