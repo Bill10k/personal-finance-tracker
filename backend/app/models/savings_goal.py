@@ -6,5 +6,5 @@ class SavingsGoal(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    target = Column(Float, nullable=False)
-    saved = Column(Float, default=0)
+    target = Column(Numeric(12,2), nullable=False)
+    saved = Column(Numeric(12,2), default=0)
