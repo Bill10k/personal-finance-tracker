@@ -9,5 +9,5 @@ class Budget(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     category_id = Column(Integer, ForeignKey("categories.id"))
-    amount = Column(Float)
-    period = Column(String)  # e.g., 'monthly', 'weekly'
+    t_amount = Column(Numeric(12,2), nullable = False)
+    period = Column(Date)  # e.g., 'monthly', 'weekly'
