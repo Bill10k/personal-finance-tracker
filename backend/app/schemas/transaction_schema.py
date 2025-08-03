@@ -1,16 +1,16 @@
 from pydantic import BaseModel
 from typing import Optional, Literal
 from datetime import datetime
+from datetime import datetime, date
 
 
 class TransactionCreate(BaseModel):
-    user_id: int
-    account_id: int
+    type: str
     amount: float
-    type: Literal["income", "expense"]
     category: str
-    timestamp: datetime
-    note: str
+    description: Optional[str]
+    date: date
+
 
 class TransferCreate(BaseModel):
     user_id: int
