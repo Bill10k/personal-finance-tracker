@@ -1,48 +1,36 @@
 import React, { useState } from "react";
-import { addTransaction } from "../services/api";
+import { useTransactions } from "./TransactionContext"; // ✅ Context for live updates
 
-async function handleAddTransaction(txData) {
-  const token = localStorage.getItem("token");
-  await addTransaction(token, txData);
-  // reload transactions, clear modal, etc.
-}
+export default function AddTransaction({ onCancel }) {
+  const { addTransaction } = useTransactions(); // ✅ Add function from context
 
-export default function AddTransaction({ onCancel, onSuccess }) {
   const [type, setType] = useState("expense");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date().toISOString().substr(0, 10));
 
-  const categories = [
-    "Food",
-    "Rent",
-    "Transport",
-    "Entertainment",
-    "Salary",
-    "Other",
-  ];
+  const categories = ["Food", "Rent", "Transport", "Entertainment", "Salary", "Other"];
 
   function handleSubmit(e) {
     e.preventDefault();
-    
-    // Validate required fields
+
     if (!amount || !category || !date) {
       alert("Please fill all required fields");
       return;
     }
 
-    // Create new transaction object
     const newTransaction = {
+      id: Date.now(),
       type,
       amount: Number(amount),
       category,
       description,
-      date
+      date,
+      createdAt: new Date().toISOString(), // For recent filter
     };
 
-    // Pass to parent component
-    if (onSuccess) onSuccess(newTransaction);
+    addTransaction(newTransaction); // ✅ Add to global state (and localStorage)
 
     // Reset form
     setType("expense");
@@ -50,6 +38,8 @@ export default function AddTransaction({ onCancel, onSuccess }) {
     setCategory("");
     setDescription("");
     setDate(new Date().toISOString().substr(0, 10));
+
+    if (onCancel) onCancel(); // ✅ Close modal if provided
   }
 
   return (

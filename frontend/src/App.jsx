@@ -9,6 +9,9 @@ import Transactions from './Components/Transactions';
 import History from './Components/History';
 import Budget from './Components/Budget';
 import Settings from './Components/Settings';
+import EditProfile from './Components/EditProfile';
+import { BudgetProvider } from './Components/BudgetContext';
+
 
 function getPreferredTheme() {
   if (typeof window !== 'undefined') {
@@ -39,7 +42,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
-      <Routes>
+      <BudgetProvider>
+        <Routes>
         {/* Public routes */}
         <Route
           path="/login"
@@ -95,6 +99,18 @@ export default function App() {
           }
         />
         <Route
+          path="/edit-profile"
+          element={
+            isLoggedIn ? (
+              <ProtectedLayout>
+                <EditProfile />
+              </ProtectedLayout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
           path="/budget"
           element={
             isLoggedIn ? (
@@ -111,15 +127,15 @@ export default function App() {
           element={
             isLoggedIn ? (
               <ProtectedLayout>
-                <Settings />
+                <Settings setIsLoggedIn={setIsLoggedIn} />
               </ProtectedLayout>
             ) : (
               <Navigate to="/login" replace />
             )
           }
         />
-      </Routes>
+              </Routes>
+      </BudgetProvider>
     </div>
   );
 }
-

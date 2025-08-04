@@ -1,40 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
-import { fetchTransactions } from "../services/api";
+import { motion, AnimatePresence } from 'framer-motion';
+
 
 export default function History() {
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Get transactions from localStorage or empty array
+  const [transactions, setTransactions] = useState(() => {
+    const saved = localStorage.getItem('historyTransactions');
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  // TODO: Update with your real auth logic!
-  const token = localStorage.getItem("token"); // Or however you store tokens
-
+  // Load transactions from main transactions when component mounts
   useEffect(() => {
-    fetchTransactions(token)
-      .then((res) => setTransactions(res.data))  // axios returns .data
-      .catch((e) => alert("Error fetching transactions: " + e))
-      .finally(() => setLoading(false));
-  }, [token]);
+    const mainTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+    const historyTransactions = JSON.parse(localStorage.getItem('historyTransactions') || '[]');
+    
+    // Only update if there are new transactions not already in history
+    const newTransactions = mainTransactions.filter(
+      mt => !historyTransactions.some(ht => ht.id === mt.id)
+    );
+    
+    if (newTransactions.length > 0) {
+      const updatedHistory = [...newTransactions, ...historyTransactions];
+      setTransactions(updatedHistory);
+      localStorage.setItem('historyTransactions', JSON.stringify(updatedHistory));
+    }
+  }, []);
 
-  // Filter states
+  // State for filters
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
+  // Reset all filters
   const resetFilters = () => {
     setSearch('');
     setFilterType('all');
     setFilterCategory('all');
   };
 
-  // Dynamically generate categories from data
+  // Reset all transactions
+  const handleResetAll = () => {
+    localStorage.removeItem('historyTransactions'); // Only clear history storage
+    setTransactions([]);
+    setShowResetConfirm(false);
+    resetFilters();
+  };
+
+  // Dynamically generate categories from transactions
   const dynamicCategories = [
     'all',
     ...new Set(transactions.map(tx => (tx.category || '').toLowerCase()))
   ];
 
-  // Filtered transactions
+  // Filter transactions based on current filters
   const filteredTransactions = transactions.filter((tx) => {
     const matchesSearch = tx.description?.toLowerCase().includes(search.toLowerCase());
     const matchesType =
@@ -44,17 +64,9 @@ export default function History() {
     const matchesCategory =
       filterCategory === 'all' ||
       tx.category?.toLowerCase() === filterCategory;
+    
     return matchesSearch && matchesType && matchesCategory;
   });
-
-  // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-[200px] flex items-center justify-center">
-        <span className="text-gray-400 dark:text-gray-500">Loading...</span>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-5xl mx-auto p-6 sm:p-10 bg-white dark:bg-gray-900 rounded-2xl shadow-xl min-h-screen font-sans">
@@ -194,30 +206,44 @@ export default function History() {
       </div>
 
       {/* Reset Confirmation Modal */}
-      {showResetConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20 dark:bg-black/30">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-xl border border-white/20 dark:border-gray-600/30">
-            <h3 className="text-lg font-bold mb-4 dark:text-white">Reset All Transactions?</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              This will clear ALL transaction history. This cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowResetConfirm(false)}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleResetAll}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
-              >
-                Confirm Reset
-              </button>
-            </div>
-          </div>
+      <AnimatePresence>
+  {showResetConfirm && (
+    <motion.div
+      className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20 dark:bg-black/30"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-xl border border-white/20 dark:border-gray-600/30"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-lg font-bold mb-4 dark:text-white">Reset All Transactions?</h3>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
+          This will clear ALL transaction history. This cannot be undone.
+        </p>
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={() => setShowResetConfirm(false)}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleResetAll}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+          >
+            Confirm Reset
+          </button>
         </div>
-      )}
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
     </div>
   );
 }
