@@ -7,4 +7,13 @@ export default defineConfig({
     react(),         // ✅ properly imported and used
     tailwindcss(),   // ✅ if you're using Tailwind via its Vite plugin
   ],
+   /*server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },*/
 })

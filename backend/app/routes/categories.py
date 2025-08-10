@@ -1,23 +1,26 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
-from app.core.database import categories_db  # your in-memory categories dictionary
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
+from typing import List
+from app.core.dependencies import get_db, get_current_user
+from app.models.users import User
+from app.models.category import Category
+from app.schemas.category_schema import CategoryCreate, CategoryResponse
 
+router = APIRouter(prefix="/categories", tags=["categories"])
 
-router = APIRouter()
+@router.get("/", response_model=List[CategoryResponse])
+def list_categories(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return db.query(Category).filter(Category.user_id == current_user.id).order_by(Category.name.asc()).all()
 
-class CategoryCreate(BaseModel):
-    name: str
-
-@router.post("/", response_model=dict)
-def create_category(category: CategoryCreate):
-    category_id = len(categories_db) + 1
-    new_category = {
-        "id": category_id,
-        "name": category.name
-    }
-    categories_db[category_id] = new_category
-    return new_category
-
-@router.get("/", response_model=list)
-def get_categories():
-    return list(categories_db.values())
+@router.post("/", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
+def create_category(payload: CategoryCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    name = payload.name.strip()
+    # enforce unique per user
+    exists = db.query(Category).filter(Category.user_id == current_user.id, Category.name.ilike(name)).first()
+    if exists:
+        return exists
+    cat = Category(user_id=current_user.id, name=name)
+    db.add(cat)
+    db.commit()
+    db.refresh(cat)
+    return cat

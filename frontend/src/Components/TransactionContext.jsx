@@ -1,40 +1,67 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { getTransactions, createTransactionAPI, deleteTransactionAPI } from "../api"; // <-- import API
 
 const TransactionContext = createContext();
 
 export function TransactionProvider({ children }) {
   const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Load from localStorage on mount
+  // ✅ Load from backend on mount
   useEffect(() => {
-    const saved = localStorage.getItem("transactions");
-    if (saved) setTransactions(JSON.parse(saved));
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await getTransactions(token);
+        setTransactions(response.data);
+      } catch (err) {
+        setTransactions([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
   }, []);
 
-  // ✅ Sync to localStorage whenever transactions change
-  useEffect(() => {
-    localStorage.setItem("transactions", JSON.stringify(transactions));
-  }, [transactions]);
-
-  // ✅ Add transaction
-  const addTransaction = (transaction) => {
-    setTransactions((prev) => [transaction, ...prev]);
+  // ✅ Add transaction (API and state)
+  const addTransaction = async (transaction) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const response = await createTransactionAPI(transaction, token);
+      setTransactions((prev) => [response.data, ...prev]);
+    } catch (err) {
+      // handle error (show toast, set error state, etc)
+    }
   };
 
-  // ✅ Delete transaction
-  const deleteTransaction = (id) => {
-    setTransactions((prev) => prev.filter((tx) => tx.id !== id));
+  // ✅ Delete transaction (API and state)
+  const deleteTransaction = async (id) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      await deleteTransactionAPI(id, token);
+      setTransactions((prev) => prev.filter((tx) => tx.id !== id));
+    } catch (err) {
+      // handle error
+    }
   };
 
-  // ✅ Reset all transactions
+  // ✅ Reset all transactions (frontend only or backend if endpoint exists)
   const resetTransactions = () => {
-  setTransactions([]); // Clear state
-  localStorage.setItem("transactions", JSON.stringify([])); // Clear only main transactions
-};
+    setTransactions([]);
+    // Optionally: call backend to delete all if such an endpoint exists
+  };
 
   return (
     <TransactionContext.Provider
-      value={{ transactions, addTransaction, deleteTransaction, resetTransactions }}
+      value={{
+        transactions,
+        setTransactions,
+        addTransaction,
+        deleteTransaction,
+        resetTransactions,
+        loading
+      }}
     >
       {children}
     </TransactionContext.Provider>

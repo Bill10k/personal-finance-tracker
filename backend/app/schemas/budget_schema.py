@@ -1,21 +1,22 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from decimal import Decimal
 from typing import Optional
 
 class BudgetCreate(BaseModel):
-    name: str
-    budget: float
-    spent: Optional[float] = 0
+    category_id: int
+    amount: Decimal
+    period: Optional[str] = None  # "monthly" | "weekly" | "yearly" | "custom"
 
 class BudgetUpdate(BaseModel):
-    name: Optional[str] = None
-    budget: Optional[float] = None
-    spent: Optional[float] = None
+    amount: Optional[Decimal] = None
+    period: Optional[str] = None
+    category_id: Optional[int] = None
 
 class BudgetResponse(BaseModel):
-    id: int
-    name: str
-    budget: float
-    spent: float
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        orm_mode = True
+    id: int
+    user_id: int
+    category_id: int
+    amount: Decimal
+    period: Optional[str] = None

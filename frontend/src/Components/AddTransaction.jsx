@@ -1,45 +1,51 @@
 import React, { useState } from "react";
-import { useTransactions } from "./TransactionContext"; // ✅ Context for live updates
 
-export default function AddTransaction({ onCancel }) {
-  const { addTransaction } = useTransactions(); // ✅ Add function from context
-
+export default function AddTransaction({ onSuccess, onCancel }) {
   const [type, setType] = useState("expense");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().substr(0, 10));
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10)); // YYYY-MM-DD
+  const [submitting, setSubmitting] = useState(false);
+  const [err, setErr] = useState("");
 
   const categories = ["Food", "Rent", "Transport", "Entertainment", "Salary", "Other"];
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setErr("");
 
-    if (!amount || !category || !date) {
-      alert("Please fill all required fields");
-      return;
+    if (!amount || Number(amount) <= 0) return setErr("Please enter a valid amount.");
+    if (!category) return setErr("Please select a category.");
+    if (!date) return setErr("Please choose a date.");
+
+    try {
+      setSubmitting(true);
+
+      // Hand off to parent; parent will call the API and update context.
+      // We pass dateOnly so the parent can build an ISO timestamp.
+      onSuccess?.({
+        type,
+        amount,
+        category,
+        description,
+        dateOnly: date,
+        // If you support accounts, allow parent to inject default (e.g., account_id: 1)
+      });
+
+      // Reset local form and close
+      setType("expense");
+      setAmount("");
+      setCategory("");
+      setDescription("");
+      setDate(new Date().toISOString().slice(0, 10));
+      onCancel?.();
+    } catch (e) {
+      // Shouldn't usually hit since parent handles API, but just in case
+      setErr("Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-
-    const newTransaction = {
-      id: Date.now(),
-      type,
-      amount: Number(amount),
-      category,
-      description,
-      date,
-      createdAt: new Date().toISOString(), // For recent filter
-    };
-
-    addTransaction(newTransaction); // ✅ Add to global state (and localStorage)
-
-    // Reset form
-    setType("expense");
-    setAmount("");
-    setCategory("");
-    setDescription("");
-    setDate(new Date().toISOString().substr(0, 10));
-
-    if (onCancel) onCancel(); // ✅ Close modal if provided
   }
 
   return (
@@ -125,7 +131,7 @@ export default function AddTransaction({ onCancel }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-800 dark:text-white resize-none"
-        ></textarea>
+        />
       </div>
 
       {/* Date */}
@@ -142,17 +148,21 @@ export default function AddTransaction({ onCancel }) {
         />
       </div>
 
+      {/* Error */}
+      {err && <div className="text-red-600 font-medium">{err}</div>}
+
       {/* Actions */}
       <div className="flex gap-2 mt-4">
         <button
           type="submit"
+          disabled={submitting}
           className={`flex-1 py-3 rounded-md font-semibold text-white ${
             type === "income"
               ? "bg-green-600 hover:bg-green-700"
               : "bg-red-600 hover:bg-red-700"
           } transition-colors`}
         >
-          Add {type === "income" ? "Income" : "Expense"}
+          {submitting ? "Adding..." : `Add ${type === "income" ? "Income" : "Expense"}`}
         </button>
         {onCancel && (
           <button

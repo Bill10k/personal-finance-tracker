@@ -1,18 +1,24 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from decimal import Decimal
+from typing import Optional
+from datetime import date, datetime
 
-class SavingsGoalBase(BaseModel):
+class SavingsGoalCreate(BaseModel):
     name: str
-    target: float
-    saved: float = 0
-
-class SavingsGoalCreate(SavingsGoalBase):
-    pass
+    target_amount: Decimal
+    deadline: Optional[date] = None
 
 class SavingsGoalUpdate(BaseModel):
-    saved: float
+    # update only what the UI changes frequently
+    current_amount: Decimal
 
-class SavingsGoalResponse(SavingsGoalBase):
+class SavingsGoalResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
-
-    class Config:
-        orm_mode = True
+    user_id: int
+    name: str
+    target_amount: Decimal
+    current_amount: Decimal
+    deadline: Optional[date] = None
+    created_at: datetime

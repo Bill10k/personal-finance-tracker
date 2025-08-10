@@ -1,47 +1,57 @@
+# app/services/auth_service.py
 from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from datetime import datetime
-from app.schemas.auth import UserCreate  # Use consistent import
-from app.core.database import users_db  # In-memory mock DB
-from app.schemas.auth import UserLogin  # Adjust import if needed
+
+from app.schemas.user_schema import UserCreate, UserLogin
+from app.models.users import User
+from app.core.security import hash_password, verify_password, create_access_token
 
 class AuthService:
     @staticmethod
-    def register(user: UserCreate, db=None):
-        if user.username in users_db:
+    def register(user: UserCreate, db: Session):
+        if db.query(User).filter(User.username == user.username).first():
             raise HTTPException(status_code=400, detail="Username already exists")
+        if db.query(User).filter(User.email == user.email).first():
+            raise HTTPException(status_code=400, detail="Email already registered")
 
-        user_id = len(users_db) + 1
-        new_user = {
-            "id": user_id,
-            "username": user.username,
-            "email": user.email,
-            "full_name": user.full_name,
-            "hashed_password": f"hashed-{user.password}",  # Simulate hashing
-            "created_at": datetime.utcnow()
-        }
-
-        users_db[user.username] = new_user
-
+        new_user = User(
+            username=user.username,
+            email=user.email,
+            full_name=user.full_name,
+            hashed_password=hash_password(user.password),
+            created_at=datetime.utcnow(),
+        )
+        db.add(new_user); db.commit(); db.refresh(new_user)
         return {
-            "id": user_id,
-            "username": user.username,
-            "email": user.email,
-            "full_name": user.full_name
+            "id": new_user.id,
+            "username": new_user.username,
+            "email": new_user.email,
+            "full_name": new_user.full_name,
         }
 
     @staticmethod
-    def login(user_data: UserLogin, db=None):  # Accepts optional db for future use
-        user = users_db.get(user_data.username)
-        if not user:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username")
-        if user["hashed_password"] != f"hashed-{user_data.password}":  # Be sure to check hashed password!
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
+    def login(payload: UserLogin, db: Session):
+        identifier = payload.identifier.strip()
+        password = payload.password
 
+        user = db.query(User).filter(
+            or_(User.username == identifier, User.email == identifier)
+        ).first()
+
+        if not user or not verify_password(password, user.hashed_password):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Invalid username/email or password")
+
+        token = create_access_token(user.id)
         return {
-            "message": "Login successful",
+            "access_token": token,
+            "token_type": "bearer",
             "user": {
-                "username": user["username"],
-                "email": user["email"],
-                "full_name": user["full_name"]
-            }
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "full_name": user.full_name,
+            },
         }

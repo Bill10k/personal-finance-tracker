@@ -152,3 +152,26 @@ Last updated: 2025-07-25
 > *Keep this file up to date with all feature changes, bugfixes, dependency updates, and major project milestones.*
 
 ---
+[Unreleased] - 2025-08-06
+Added
+Integrated PostgreSQL as the primary database backend, replacing all in-memory dictionaries for core models (users, accounts, transactions, budgets, categories, and savings_goals).
+
+Configured SQLAlchemy and Alembic for robust database schema management and migrations.
+
+Added .env file support and standardized configuration loading via a Settings class using Pydantic.
+
+Set up automatic migrations with Alembic (alembic revision --autogenerate and alembic upgrade head).
+
+Changed
+Updated all database models to use SQLAlchemy, enforcing professional, production-grade schema design (proper relationships, foreign keys, and data types).
+
+Refactored backend codebase to remove in-memory mock database imports (e.g., users_db, accounts_db, categories_db).
+
+Updated config.py to include all environment variables used in .env, improving environment variable validation and overall security.
+
+Standardized environment variable naming between .env and the Settings class for consistency.
+
+Fixed
+Resolved Alembic migration errors caused by mismatched ForeignKey definitions and missing table columns.
+
+Addressed application startup issues resulting from missing or misconfigured settings fields, ensuring robust error handling during initialization.

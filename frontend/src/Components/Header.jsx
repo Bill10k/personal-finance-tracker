@@ -1,5 +1,8 @@
 import React from "react";
 import { useProfile } from "../Components/ProfileContext";
+import { Link } from "react-router-dom";
+
+
 
 export default function Header() {
   const { profile } = useProfile();
@@ -15,11 +18,14 @@ export default function Header() {
             {profile.name.split(" ")[0]}
           </span>
         </span>
-        <img
-          src={profile.image}
-          alt="Profile"
-          className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600 object-cover"
-        />
+        <Link to="/settings">
+  <img
+    src={profile.image}
+    alt="Profile"
+    className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600 object-cover cursor-pointer
+      transition-transform duration-200 ease-in-out hover:scale-105 hover:ring-2 hover:ring-violet-500"
+  />
+</Link>
       </div>
     </header>
   );
