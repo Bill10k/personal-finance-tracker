@@ -17,4 +17,4 @@ class SavingsGoal(Base):
         server_default=text("now()")
     )
 
-user = relationship("User", back_populates="savings_goals")
+    user = relationship("User", back_populates="savings_goals")
